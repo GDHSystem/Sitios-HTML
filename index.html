@@ -187,7 +187,7 @@
         <section id="results-section">
             <h2>📜 Resultados</h2>
             <div id="results-container">
-                <p>⚠️ **ACCIÓN FINAL REQUERIDA:** Sube este archivo a un servidor web (GitHub Pages, Netlify) para evitar el error de clave. ¡Una vez en línea, funcionará!</p>
+                <p>Ingresa una cita en el formato requerido (Ej: **JHN.3.16**) y haz clic en "Buscar Cita".</p>
             </div>
         </section>
     </main>
@@ -196,11 +196,11 @@
         // --- 3. JavaScript Logic ---
         
         // ==========================================================
-        //         ✅ CONFIGURACIÓN FINAL API.BIBLE CORRECTA ✅
+        //         ✅ CONFIGURACIÓN FINAL API.BIBLE (CLAVE ACTUALIZADA) ✅
         // ==========================================================
         
-        // 1. CLAVE DE API (TU CLAVE CONFIRMADA)
-        const API_KEY = 'suh0PeiW6hrGvSmTj_iUt'; 
+        // 1. CLAVE DE API (TU CLAVE GENERADA HOY)
+        const API_KEY = 'V0WuyQ7q0WyAZRU4X_cTy'; 
 
         // 2. ID DE BIBLIA (UUID CONFIRMADO para Reina Valera 1909)
         const BIBLE_ID = 'S92420522e16049f-01'; 
@@ -245,8 +245,8 @@
                     let errorMessage = errorJson.message || `Error HTTP: ${response.status}`;
 
                     if (response.status === 403) {
-                         // Este error solo debe aparecer si la clave es rechazada (bad api-key) o la cuota se agota
-                         errorMessage = "403 Prohibido: El servidor rechaza la conexión. Sube el archivo a un dominio web real (el error de CORS/clave ha regresado).";
+                         // Este error solo debería aparecer si la cuota se agota, ya que la clave está activa.
+                         errorMessage = "403 Prohibido: El servidor rechaza la conexión. Verifica tu cuota de uso en el panel de API.Bible.";
                     } else if (response.status === 404) {
                          errorMessage = `404 No Encontrado: La cita es incorrecta. Asegúrate de usar el formato de ID (Ej: JHN.3.16).`;
                     }
