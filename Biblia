@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leamos Biblia Juntos - Reina Valera 1909</title>
+    <style>
+        /* --- 1. CSS Styles --- */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #f8f9fa;
+            --text-color: #212529;
+            --border-color: #ced4da;
+            --header-bg: #495057;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Estilos de Controles */
+        .search-input-group, .controls-grid {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .controls-grid {
+            flex-wrap: wrap; 
+        }
+
+        input[type="text"], input[type="number"], select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1em;
+            flex-grow: 1;
+        }
+
+        .controls-grid select, .controls-grid input {
+            min-width: 150px;
+            flex-basis: calc(50% - 10px); 
+        }
+
+        /* Botones */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .controls-grid-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .controls-grid-buttons button {
+            flex-grow: 1;
+        }
+
+        /* Sección de Resultados */
+        #results-container {
+            padding: 15px;
+            border: 1px dashed var(--border-color);
+            border-radius: 4px;
+            min-height: 100px;
+        }
+
+        /* Estilos de versículos para API.Bible */
+        #results-container .chapter-number, #results-container .verse-number {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #495057;
+            margin-right: 5px;
+        }
+
+        .note {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .search-input-group, .controls-grid, .controls-grid-buttons {
+                flex-direction: column;
+            }
+            .controls-grid select, .controls-grid input {
+                flex-basis: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📖 Leamos Biblia Juntos</h1>
+        <p>Reina Valera 1909 (API.Bible)</p>
+    </header>
+
+    <main>
+        <section id="search-section">
+            <h2>🔎 Búsqueda por Cita Exacta</h2>
+            <div class="search-input-group">
+                <input type="text" id="exact-quote" placeholder="Ej: JHN.3.16 o GEN.1.1-5">
+                <button onclick="fetchExactQuote()">Buscar Cita</button>
+            </div>
+            <p class="note">**Versión:** Reina Valera 1909. Formato: **ID_LIBRO.CAPÍTULO.VERSÍCULO** (ej: JHN.3.16).</p>
+        </section>
+
+        <section id="select-section">
+            <h2>⚙️ Selección por Opciones</h2>
+            <p style="color: blue; font-weight: bold;">ⓘ **Aviso:** El buscador exacto es el método preferido para esta API.</p>
+            <div class="controls-grid">
+                <select id="testament-select" disabled>
+                    <option value="">-- Deshabilitado --</option>
+                </select>
+
+                <select id="book-select" disabled>
+                    <option value="">-- Deshabilitado --</option>
+                </select>
+
+                <select id="chapter-select" disabled>
+                    <option value="">-- Deshabilitado --</option>
+                </select>
+
+                <input type="number" id="verse-input" placeholder="Versículo (Opcional)" min="1" disabled>
+            </div>
+
+            <div class="controls-grid-buttons">
+                <button disabled>Leer Capítulo/Versículo</button>
+                <button disabled>Leer Libro Completo</button>
+            </div>
+        </section>
+
+        <section id="results-section">
+            <h2>📜 Resultados</h2>
+            <div id="results-container">
+                <p>⚠️ **ACCIÓN FINAL REQUERIDA:** Sube este archivo a un servidor web (GitHub Pages, Netlify) para evitar el error de clave. ¡Una vez en línea, funcionará!</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- 3. JavaScript Logic ---
+        
+        // ==========================================================
+        //         ✅ CONFIGURACIÓN FINAL API.BIBLE CORRECTA ✅
+        // ==========================================================
+        
+        // 1. CLAVE DE API (TU CLAVE CONFIRMADA)
+        const API_KEY = 'suh0PeiW6hrGvSmTj_iUt'; 
+
+        // 2. ID DE BIBLIA (UUID CONFIRMADO para Reina Valera 1909)
+        const BIBLE_ID = 'S92420522e16049f-01'; 
+
+        const BASE_API_URL = 'https://api.scripture.api.bible/v1/bibles/'; 
+
+        // ==========================================================
+
+        const $resultsContainer = document.getElementById('results-container');
+
+        function displayError(message) {
+            $resultsContainer.innerHTML = `<p style="color: red;">⚠️ Error: ${message}</p>`;
+        }
+
+        function displayResults(data) {
+            if (!data || !data.content || !data.reference) {
+                let errorMessage = `No se devolvió contenido. Verifica la cita y el formato (Ej: JHN.3.16).`;
+                displayError(errorMessage);
+                return;
+            }
+
+            let htmlContent = `<h3>${data.reference} (RVR09)</h3>`;
+            htmlContent += data.content; 
+            $resultsContainer.innerHTML = htmlContent;
+        }
+
+        async function fetchBibleData(quote) {
+            
+            const url = `${BASE_API_URL}${BIBLE_ID}/passages/${quote}`;
+
+            $resultsContainer.innerHTML = '<p>Cargando... por favor, espera.</p>';
+
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'api-key': API_KEY,
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorJson = await response.json();
+                    let errorMessage = errorJson.message || `Error HTTP: ${response.status}`;
+
+                    if (response.status === 403) {
+                         // Este error solo debe aparecer si la clave es rechazada (bad api-key) o la cuota se agota
+                         errorMessage = "403 Prohibido: El servidor rechaza la conexión. Sube el archivo a un dominio web real (el error de CORS/clave ha regresado).";
+                    } else if (response.status === 404) {
+                         errorMessage = `404 No Encontrado: La cita es incorrecta. Asegúrate de usar el formato de ID (Ej: JHN.3.16).`;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const json = await response.json();
+                displayResults(json.data);
+            } catch (error) {
+                console.error("Error al obtener datos de la Biblia:", error);
+                displayError(`No se pudo cargar la cita. (${error.message})`);
+            }
+        }
+
+        function fetchExactQuote() {
+            const quote = document.getElementById('exact-quote').value.trim().toUpperCase(); 
+            if (quote) {
+                fetchBibleData(quote);
+            } else {
+                displayError("Por favor, introduce una cita exacta (Ej: JHN.3.16).");
+            }
+        }
+
+        // Dejamos las funciones de selectores deshabilitadas
+        function fetchSelectedPassage() {}
+        function fetchBookComplete() {}
+        function populateBooks() {}
+        function populateChapters() {}
+
+        window.onload = () => {};
+    </script>
+</body>
+</html>
